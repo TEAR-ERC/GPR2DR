@@ -1,0 +1,172 @@
+{
+  "project_name": "GPRDR",
+  "compiler_flags": "-DEQNTYPED99 -DODESOLVER",
+  "linker_flags" : "-ltecio",
+  "paths": {
+    "peano_kernel_path": "./Peano",
+    "exahype_path": "./ExaHyPE",
+    "output_directory": "./ApplicationExamples/GPRDR/GPRDR",
+    "log_file": "whatever.log"
+  },
+  "architecture": "skx",
+  "computational_domain": {
+    "dimension": 2,
+    "end_time": 5.0,
+    "offset": [
+      -8000.0,
+      -8000.0
+    ],
+    "width": [
+      16000.0,
+      16000.0
+    ]
+  },
+  "shared_memory": {
+    "cores": 8,
+    "properties_file": "sharedmemory.properties",
+    "autotuning_strategy": "dummy",
+    "background_job_consumers": 7,
+    "manual_pinning": false,
+    "background_job_processing": "job_system",
+    "job_system_wait_behaviour": "process_any_jobs",
+    "invasion_strategy": "no_invade",
+    "thread_stack_size": 12582912
+  },
+  "distributed_memory": {
+    "timeout": 6000,
+    "load_balancing_type": "static",
+    "buffer_size": 3200,
+    "load_balancing_strategy": "hotspot",
+    "node_pool_strategy": "fair",
+    "ranks_per_node": 2
+  },
+  "optimisation": {
+    "fuse_algorithmic_steps": "all",
+    "fuse_algorithmic_steps_rerun_factor": 0.99,
+    "fuse_algorithmic_steps_diffusion_factor": 0.99,
+    "spawn_predictor_as_background_thread": true,
+    "spawn_update_as_background_thread": true,
+    "spawn_amr_background_threads": true,
+    "disable_vertex_exchange_in_time_steps": true,
+    "time_step_batch_factor": 0.0,
+    "disable_metadata_exchange_in_batched_time_steps": false,
+    "double_compression": 0.0,
+    "spawn_double_compression_as_background_thread": true
+  },
+  "solvers": [
+    {
+      "type": "Limiting-ADER-DG",
+      "name": "GPRDRSolver",
+      "order": 2,
+      "maximum_mesh_size": 1000.0,
+      "maximum_mesh_depth": 1,
+      "time_stepping": "global",
+      "aderdg_kernel": {
+        "language": "C",
+        "nonlinear": true,
+        "terms": [
+          "flux",
+          "ncp",
+          "source"
+        ],
+        "space_time_predictor": {},
+        "optimised_terms": [],
+        "optimised_kernel_debugging": [],
+        "implementation": "optimised"
+      },
+      "point_sources": 0,
+      "limiter": {
+        "dmp_observables": 3,
+        "dmp_relaxation_parameter": 1e+3,
+        "dmp_difference_scaling": 1e+4,
+        "patch_size": "max",
+        "implementation": "generic"
+      },
+      "fv_kernel": {
+        "language": "C",
+        "terms": [
+          "flux",
+          "ncp",
+          "source"
+        ],
+        "scheme": "musclhancock",
+	"slope_limiter" : "minmod",
+        "implementation": "generic"
+      },
+      "variables": [
+        {
+          "name": "rho",
+          "multiplicity": 1
+        },
+	{
+          "name": "v",
+          "multiplicity": 3
+        },
+        {
+          "name": "s",
+          "multiplicity": 1
+        },
+        {
+          "name": "J",
+          "multiplicity": 3
+        },
+        {
+          "name": "A",
+          "multiplicity": 9
+        },
+        {
+          "name": "alpha",
+          "multiplicity": 1
+        },
+        {
+          "name": "lambda",
+          "multiplicity": 1
+        },
+        {
+          "name": "mu",
+          "multiplicity": 1
+        },
+        {
+          "name": "xi",
+          "multiplicity": 1
+        },
+        {
+          "name": "xi1",
+          "multiplicity": 1
+        },
+        {
+          "name": "xi2",
+          "multiplicity": 1
+        },
+	{
+          "name": "ODEIter",
+          "multiplicity": 1
+        }
+      ],
+    "parameters": {
+	"reference": "NLOPRUPTURE"
+      },
+
+    "plotters": [
+         {
+          "type": "vtu::Cartesian::Cells::limited::Ascii",
+          "name": "ConservedWriter",
+          "time": 0.0,
+          "repeat": 0.1,
+          "output": "./output2/conserved",
+          "variables": 39
+         },
+        {
+          "type": "user::defined",
+          "name": "TecplotWriter",
+          "time": 10000.0,
+          "repeat": 0.05,
+          "output": "./output2/tecplot",
+          "variables": 9
+        }
+
+      ],
+     "cfl": 0.5
+    }
+  ]
+}
