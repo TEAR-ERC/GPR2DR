@@ -7,7 +7,6 @@
 // ========================
 #include "ProbeWriter41.h"
 #include "PDE.h"
-#include "C2P-GPRDR.h"
 #include <algorithm>
 #include <stdlib.h>
 
@@ -38,12 +37,8 @@ void GPRDR::ProbeWriter41::mapQuantities(
     double timeStamp
 ) {
   const int writtenUnknowns = 27;
-  double V[27];
-
-  pdecons2prim_(V,Q);
-
   for (int i=0; i<writtenUnknowns; i++){ 
-    outputQuantities[i] = std::max(-1e36,std::min(1e36,V[i]));
+    outputQuantities[i] = Q[i];
   }
 
   double aux[16];
@@ -54,7 +49,7 @@ void GPRDR::ProbeWriter41::mapQuantities(
   pdeauxvar_(aux,Q,x_3,&timeStamp);
 
   for (int i=writtenUnknowns; i<writtenUnknowns+16; i++){
-    outputQuantities[i] = std::max(-1e36,std::min(1e36,aux[i-writtenUnknowns]));
+    outputQuantities[i] = aux[i-writtenUnknowns];
 
 }
 

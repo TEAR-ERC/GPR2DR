@@ -21,13 +21,13 @@ RECURSIVE SUBROUTINE DynamicRupture(x_in, t, Q,slp)
         type(t_ode_parameters) :: ODE
 
         ! Argument list 
-        REAL, INTENT(IN)               :: x_in(nDim), t,slp   ! 
+        REAL, INTENT(IN)               :: x_in(nDim), t     ! 
         REAL, INTENT(OUT)              :: Q(nVar)        ! 
         ! Local variables
 	INTEGER :: iErr
         REAL :: stressnorm, sigma_vec(6),ee,u(3),xGP(3), V(nVar), LL_GPR, MM_GPR
-	REAL :: mus,mud,dc, mu_t
-    REAL :: syy,sxy,TT(3,3),A(3,3), detA,Id(3,3),devG(3,3), GT(3,3), Yeq,Ydev,Yp
+	REAL :: syy,sxy,pf,TT(3,3),A(3,3), detA,Id(3,3),devG(3,3), GT(3,3), Yeq,Ydev,Yp
+        REAL :: mud,mus,mut,dc,slp
         ! Compute the normal stress using the Formula by Barton (IJNMF 2009)
         xGP=0.
         xGP(1:nDim)=x_in(1:nDim)
@@ -48,26 +48,23 @@ RECURSIVE SUBROUTINE DynamicRupture(x_in, t, Q,slp)
 
       ! Compute the stress tensor
        TT      = -detA*MM_gpr*MATMUL(GT,devG) ! changed
-       syy  = TT(2,2)-Yp
+       pf=  -(LL_gpr+2.0/3.0*MM_gpr)*(detA)**2*(1-detA)
+
+       syy  = TT(2,2)-pf
        sxy  = TT(1,2)
-      ! static friction =0.677*syy 
-      ! slp = abs(V(25))
-       mus= 0.677
-       mud = 0.525
-       dc = 0.4
-      if(t.le.0.5)then
-       mu_t = max(mud,mus-(mus-mud)*(2400*t-abs(xGP(1)))/0.40)
+      ! static friction =0.677*sy
+      mus=0.677
+      mud=0.525
+      dc=0.4
+      !slp = 2*abs(V(25))
+      mut = max(mud,mus-(mus-mud)*slp/dc)
+
+      if(sxy.gt.mut*abs(syy)) then
+         Q(24) = 10.0*V(21)
       else
-       mu_t = max(mud,mus-(mus-mud)/dc*slp)
+!	Q(24) = 0.0
       end if
 
-!      if(slp>0.1) print *, 'slp=',slp
-       
-       if(sxy>mu_t*abs(syy)) then
-          Q(24) = 10.0*V(21)
-        else 
-     	  Q(24) = 0.0
-        end if
 end SUBROUTINE DynamicRupture
 
 
@@ -98,14 +95,6 @@ RECURSIVE SUBROUTINE PDEFlux(f,g,hz,Q)
 #ifdef EQNTYPED99
     type(t_ode_parameters) :: ODE
 #endif
-
- if(abs(Q(1)).lt.1)then
-     f=0.0
-     g=0.0
-     hz=0.0
-     print *,'flux zero'
-     return
-  end if
 
     f=0
     g=0
@@ -204,11 +193,6 @@ RECURSIVE SUBROUTINE PDENCP(BgradQ,Q,gradQ)
    REAL :: u(3),VP(nVar) 
    REAL :: AQx(nVar), BQy(nVar), CQz(nVar) , Qx(nVar), Qy(nVar), Qz(nVar)
 	REAL :: alpha, ialpha
- if(abs(Q(1)).lt.1)then
-     BgradQ=0.0
-     print *, 'NCP zero'
-     return
-  end if
 	
    
 	Qx = gradQ(:,1)
@@ -280,9 +264,6 @@ RECURSIVE SUBROUTINE PDENCP(BgradQ,Q,gradQ)
     AQx(18:24-1) = +u(1)*Qx(18:24-1)
     BQy(18:24-1) = +u(2)*Qy(18:24-1)
     CQz(18:24-1) = +u(3)*Qz(18:24-1)
-    !AQx(25:27)   = +u(1)*Qx(25:27)
-    !BQy(25:27)   = +u(2)*Qy(25:27)
-    !CQz(25:27)   = +u(3)*Qz(25:27)
  
     if( nDim .eq. 2) then
         BgradQ = AQx + BQy         
@@ -301,12 +282,6 @@ RECURSIVE SUBROUTINE PDEEigenvalues(L,Q,n)
   INTENT(OUT) :: L 
   ! Local Variables 
   REAL :: lam, mu, irho, VPR(3), cs,c0,uu
-   
-  if(abs(Q(1)).lt.1)then 
-     L=1
-     print *, 'eigenvalue Zero'
-     return
-  end if
 
    lam  = Q(19)   
    mu   = Q(20)
@@ -325,7 +300,7 @@ RECURSIVE SUBROUTINE PDEEigenvalues(L,Q,n)
    L(6)=uu-cs
    
    L(18:24-1)=uu
-   L(25:27)=0.0 !  D.Li slip(U,V,W)
+   L(25:27) = 0.0
 
 END SUBROUTINE PDEEigenvalues
 
@@ -357,12 +332,6 @@ RECURSIVE SUBROUTINE PDESource(S,Q)
   REAL :: V(nvar)
   REAL :: X(3),time, theta2
   INTEGER :: iErr
-
- if(abs(Q(1)).lt.1)then
-     S=0.0
-     print *, 'source zero'
-     return
-  end if
 
   S = 0.
 ! --------------- SOURCE CONTRIBUTION TO A ----------------------------------
@@ -429,7 +398,7 @@ RECURSIVE SUBROUTINE PDESource(S,Q)
 
   ! Duo April 9 - linear or exponential; S(23)=0 -> heviside func. 
    S(23) = -Q(24)!*Q(23)
-   S(25:27) = V(2:4)  ! D.Li slip source term
+   S(25:27)=V(2:4)
 
 END SUBROUTINE PDESource
 
@@ -688,7 +657,7 @@ RECURSIVE SUBROUTINE PDEEigenvectors(R,L,iR,Q,nv)
 	R=0.
 	L = 0.
 	iR=0.
-	do j=1,nVar ! D.Li April 27
+	do j=1,nVar
 		R(j,j)=1.
 		iR(j,j)=1.
 	end do
@@ -718,13 +687,9 @@ RECURSIVE SUBROUTINE PDEEigenvectors(R,L,iR,Q,nv)
     ialpha=Q(18)/(Q(18)**2+EQN%epsilon1*(1-Q(18)))
     uv=Qrot(2:4)*1.0/Q(1)  
     Lambda(18:24-1)=uv(1)
-   ! Lambda(25:27)=uv(1)
     do i=18,24-1
         L(i,i)=Lambda(i)
     end do
-    !do i = 25,27
-    !   L(i,i)=Lambda(i)
-    !end do
     END SUBROUTINE PDEEigenvectors 
 	
 RECURSIVE SUBROUTINE PDEJacobian(An,Q,gradQ,nv)
@@ -835,12 +800,7 @@ RECURSIVE SUBROUTINE PDEMatrixB(An,Q,nv)
     do i=18,24-1
         C(i,i) =  +uv(3)    
     end do	
-
-   !do i = 25,27
-   ! A(i,i)=uv(1)
-   ! B(i,i)=uv(2)
-   ! C(i,i)=uv(3)
-   ! end do	
+	
 	
 	
     if( nDim .eq. 2) then
@@ -1096,18 +1056,13 @@ RECURSIVE SUBROUTINE HLLEMFluxFV(FL,FR,QL,QR,NormalNonZero)
   REAL :: f1L(nVar), g1L(nVar), h1L(nVar) , VM(nVar) 
   
   REAL :: XX0(3),TIME0
-  if(any(isnan(QL)).or.any(isnan(QR))) then
-    print *, 'QL or OR NaN'
-  end if
-     
- 
   XX0=0.
   TIME0=0.
   !  
   nv(:)=0.
   nv(NormalNonZero+1)=1.
   !
-  flattener=1.0 !Duo: original=0.8
+  flattener=1.0!Duo: original=0.8
   !
 CALL PDEFlux(f1L,g1L,h1L,QL)
 CALL PDEFlux(f1R,g1R,h1R,QR)
@@ -1117,7 +1072,7 @@ fL = f1L*nv(1)+g1L*nv(2)+h1L*nv(3)
   
   QM=0.5*(QL+QR)
   
-  CALL PDEEigenvalues(LL,QL,nv,xg)  
+   CALL PDEEigenvalues(LL,QL,nv,xg)  
   CALL PDEEigenvalues(LR,QR,nv,xg)  
   CALL PDEEigenvalues(LM,QM,nv,xg)  
   sL = MIN( 0., MINVAL(LL(:)), MINVAL(LM(:)) ) 
@@ -1198,30 +1153,30 @@ fL = f1L*nv(1)+g1L*nv(2)+h1L*nv(3)
  !fR(18:nVar) = 0.- 0.5*ncp(18:nVar)
  !fL(18:nVar) = 0.+ 0.5*ncp(18:nVar) 
   if(any(isnan(fR))) then
-	!print *, 'Issue here'
-    !print *,'---------------------'
-    !print *,QL
-    !print *, '====================='
-    !print *,QR
-    !print *, '====================='
-    !print *, fR
-    !print *, '====================='
-    !print *, fL
-    !print *, '====================='
-    !print *, sR
-    !print *, '====================='
-    !print *, sL
-	! print *, '====================='
-	!print *, deltaL
-    !print *, '***********************'
+	print *, 'Issue here'
+    print *,'---------------------'
+    print *,QL
+    print *, '====================='
+    print *,QR
+    print *, '====================='
+    print *, fR
+    print *, '====================='
+    print *, fL
+    print *, '====================='
+    print *, sR
+    print *, '====================='
+    print *, sL
+	 print *, '====================='
+	print *, deltaL
+    print *, '***********************'
+    print *, Lam
+    print *, '***********************'
+    print *, ncp
+	print *, '***********************'
     !print *, Lam
-    !print *, '***********************'
-    !print *, ncp
-	!print *, '***********************'
-    !!print *, Lam
-	!!    print *, '***********************'
-    !!print *, Lam
-    !print *,'---------------------'	
+	!    print *, '***********************'
+    !print *, Lam
+    print *,'---------------------'	
 	pause
   end if
     END SUBROUTINE HLLEMFluxFV	

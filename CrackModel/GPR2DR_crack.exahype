@@ -1,0 +1,337 @@
+{
+  "project_name": "GPRDR",
+  "compiler_flags": "-DEQNTYPED99 -DODESOLVER",
+  "linker_flags" : "-ltecio",
+  "paths": {
+    "peano_kernel_path": "./Peano",
+    "exahype_path": "./ExaHyPE",
+    "output_directory": "./ApplicationExamples/GPRDR/GPRDR_crack",
+    "log_file": "whatever.log"
+  },
+  "architecture": "hsw",
+  "computational_domain": {
+    "dimension": 2,
+    "end_time": 5.001,
+    "offset": [
+      -35000.0,
+      -35000.0
+    ],
+    "width": [
+      70000.0,
+      70000.0
+    ]
+  },
+  "shared_memory": {
+    "cores": 2,
+    "properties_file": "sharedmemory.properties",
+    "autotuning_strategy": "dummy",
+    "background_job_consumers": 1
+  },
+  "distributed_memory": {
+    "timeout": 6000,
+    "load_balancing_type": "static",
+    "buffer_size": 6400,
+    "load_balancing_strategy": "hotspot",
+    "node_pool_strategy": "fair",
+    "ranks_per_node": 1
+  },
+  "optimisation": {
+    "fuse_algorithmic_steps": "all",
+    "fuse_algorithmic_steps_rerun_factor": 0.99,
+    "fuse_algorithmic_steps_diffusion_factor": 0.99,
+    "spawn_predictor_as_background_thread": true,
+    "spawn_update_as_background_thread": true,
+    "spawn_amr_background_threads": true,
+    "disable_vertex_exchange_in_time_steps": true,
+    "time_step_batch_factor": 0.0,
+    "disable_metadata_exchange_in_batched_time_steps": false,
+    "double_compression": 0.0,
+    "spawn_double_compression_as_background_thread": true
+  },
+  "solvers": [
+    {
+      "type": "Limiting-ADER-DG",
+      "name": "GPRDRSolver",
+      "order": 1,
+      "maximum_mesh_size": 2800.0,
+      "maximum_mesh_depth": 2,
+      "time_stepping": "global",
+      "aderdg_kernel": {
+        "language": "C",
+        "nonlinear": true,
+        "terms": [
+          "flux",
+          "ncp",
+          "source"
+        ],
+        "space_time_predictor": {},
+        "optimised_terms": [],
+        "optimised_kernel_debugging": [],
+        "implementation": "optimised"
+      },
+      "point_sources": 0,
+      "limiter": {
+        "dmp_observables": 3,
+        "dmp_relaxation_parameter": 1e+4,
+        "dmp_difference_scaling": 1e+5,
+        "patch_size": "max",
+        "implementation": "generic"
+      },
+      "fv_kernel": {
+        "language": "C",
+        "terms": [
+          "flux",
+          "ncp",
+          "source"
+        ],
+        "scheme": "musclhancock",
+	"slope_limiter" : "minmod",
+        "implementation": "generic"
+      },
+      "variables": [
+        {
+          "name": "rho",
+          "multiplicity": 1
+        },
+	{
+          "name": "v",
+          "multiplicity": 3
+        },
+        {
+          "name": "s",
+          "multiplicity": 1
+        },
+        {
+          "name": "J",
+          "multiplicity": 3
+        },
+        {
+          "name": "A",
+          "multiplicity": 9
+        },
+        {
+          "name": "alpha",
+          "multiplicity": 1
+        },
+        {
+          "name": "lambda",
+          "multiplicity": 1
+        },
+        {
+          "name": "mu",
+          "multiplicity": 1
+        },
+        {
+          "name": "xi",
+          "multiplicity": 1
+        },
+        {
+          "name": "xi1",
+          "multiplicity": 1
+        },
+        {
+          "name": "sliding",
+          "multiplicity": 1
+        },
+	{
+          "name": "sliding_xi",
+          "multiplicity": 1
+        },
+        {
+          "name": "slip",
+          "multiplicity": 3
+        },
+        {
+          "name": "derivY",
+          "multiplicity": 1
+        }
+      ],
+    "parameters": {
+	"reference": "TPV3"
+      },
+
+
+
+
+
+
+    "plotters": [
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter1",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/seismo_body030st-120dp000",
+          "variables": 44,
+          "select": {
+            "x": -12000.0,
+            "y": 3000.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter2",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/seismo_body030st120dp000",
+          "variables": 44,
+          "select": {
+            "x": 12000.0,
+            "y": 3000.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter12",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/seismo_body-030st-120dp000",
+          "variables": 44,
+          "select": {
+            "x": -12000.0,
+            "y": -3000.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter22",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/seismo_body-030st120dp000",
+          "variables": 44,
+          "select": {
+            "x": 12000.0,
+            "y": -3000.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter3",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st000",
+          "variables": 44,
+          "select": {
+            "x": 0.0,
+            "y": 288.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter31",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st000pos",
+          "variables": 44,
+          "select": {
+            "x": 0.0,
+            "y": 288.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter32",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st000neg",
+          "variables": 44,
+          "select": {
+            "x": 0.0,
+            "y": -288.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter4",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st020",
+          "variables": 44,
+          "select": {
+            "x": 2000.0,
+            "y": 288.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter41",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st020pos",
+          "variables": 44,
+          "select": {
+            "x": 2000.0,
+            "y": 288.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter42",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st020neg",
+          "variables": 44,
+          "select": {
+            "x": 2000.0,
+            "y": -288.0
+          }
+         },
+
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter5",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st040",
+          "variables": 44,
+          "select": {
+            "x": 4000.0,
+            "y": 288.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter6",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st060",
+          "variables": 44,
+          "select": {
+            "x": 6000.0,
+            "y": 288.0
+          }
+         },
+         {
+          "type": "probe::Ascii",
+          "name": "ProbeWriter7",
+          "time": 0.0,
+          "repeat": 0.005,
+          "output": "./DR2/onfault_st080",
+          "variables": 44,
+          "select": {
+            "x": 8000.0,
+            "y": 288.0
+          }
+         },
+         {
+          "type": "vtu::Cartesian::Cells::limited::Ascii",
+          "name": "ConservedWriter",
+          "time": 0.0,
+          "repeat": 0.05,
+          "output": "./DR2/conserved",
+          "variables": 5
+         },
+        {
+          "type": "user::defined",
+          "name": "TecplotWriter",
+          "time": 10000.0,
+          "repeat": 0.05,
+          "output": "./DR2/tecplot",
+          "variables": 9
+        }
+
+      ],
+     "cfl": 0.7
+    }
+  ]
+}

@@ -27,7 +27,7 @@ class GPRDR::AbstractGPRDRSolver_FV : public exahype::solvers::FiniteVolumesSolv
     static constexpr int NumberOfVariables         = 27;
     static constexpr int NumberOfParameters        = 0;
     static constexpr int NumberOfGlobalObservables = 0;
-    static constexpr int PatchSize                 = 9;
+    static constexpr int PatchSize                 = 7;
     static constexpr int GhostLayerWidth           = 2;
     static constexpr double CFL                    = 0.7;
     

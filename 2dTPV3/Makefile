@@ -20,19 +20,19 @@ SHELL = bash
 tolower = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
 # Default Paths and name
-PEANO_KERNEL_PEANO_PATH=/SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/peano
-PEANO_KERNEL_TARCH_PATH=/SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/tarch
-PEANO_TOOLBOX_MULTISCALELINKEDCELL_PATH=/SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/multiscalelinkedcell
-PEANO_TOOLBOX_SHAREDMEMORY_ORACLES_PATH=/SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/sharedmemoryoracles
-PEANO_TOOLBOX_MPI_BLANCING_PATH=/SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/mpibalancing
-EXAHYPE_PATH=/SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE
-PROJECT_PATH=/SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./ApplicationExamples/GPRDR/GPRDR_slip2
+PEANO_KERNEL_PEANO_PATH=/import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/peano
+PEANO_KERNEL_TARCH_PATH=/import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/tarch
+PEANO_TOOLBOX_MULTISCALELINKEDCELL_PATH=/import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/multiscalelinkedcell
+PEANO_TOOLBOX_SHAREDMEMORY_ORACLES_PATH=/import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/sharedmemoryoracles
+PEANO_TOOLBOX_MPI_BLANCING_PATH=/import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/mpibalancing
+EXAHYPE_PATH=/import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE
+PROJECT_PATH=/import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./ApplicationExamples/GPRDR/GPRDR_slip4
 EXECUTABLE=ExaHyPE-GPRDR
 
 # Default flags from specification file constants
 PROJECT_CFLAGS+= -DDim2
-ARCHITECTURE=wsm
-PROJECT_CFLAGS+= -DALIGNMENT=16
+ARCHITECTURE=hsw
+PROJECT_CFLAGS+= -DALIGNMENT=32
 
 # Additional flags from specification file
 PROJECT_CFLAGS+=-DEQNTYPED99 -DODESOLVER
@@ -64,7 +64,7 @@ endif
 
 
 # Main Makefile include
--include /SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE/Makefile
+-include /import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE/Makefile
 
 
 all: 

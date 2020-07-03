@@ -40,7 +40,7 @@ public:
   static constexpr int MaxPicardIterations       = Order+1;
   static constexpr bool UseMaxPicardIterations   = false;
   static constexpr double CFL                    = 0.7;
-  static constexpr double PNPM                   = 0.069;
+  static constexpr double PNPM                   = 0.1;
   
   // [order][node i]
   static kernels::UnivariateFunction** basisFunction;

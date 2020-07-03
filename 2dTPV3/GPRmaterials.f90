@@ -297,41 +297,11 @@ CONTAINS
             !StressCoeff(3)  = 4.7           ! Yeq_C                                        !
             !StressCoeff(4)  = 0.0           ! s0    
             ! -----------------------------------------------------------------------------!
-        CASE('ROCKWEAK')
-            ! -----------------------------------------------------------------------------!
-            ! Set Lame parameters and characteristic wave speed ---------------------------!
-            LamCoeff(1) = 2670.0                                              ! RHO        !
-            ChWSpeed    = (/ 3463.999983*0.7, 6000.000000*0.7 /)                      ! CS, CL     !
-            LamCoeff(2) = LamCoeff(1)*ChWSpeed(1)**2                          ! MU         !
-            LamCoeff(3) = LamCoeff(1)*(ChWSpeed(2)**2 - 2.0d0*ChWSpeed(1)**2) ! LAM        !
-            ! -----------------------------------------------------------------------------!
-            ! Set the degradation parameters for the mixture ------------------------------!
-            !DamCoeff    = (/    1./1.16666   ,   0.666666   /)          ! MU12,LAM12               !
-            DamCoeff    = (/    1.0  ,   0.0   /)          ! MU12,LAM12               !
-            ! -----------------------------------------------------------------------------!
-            ! Set the rupture coefficients ------------------------------------------------!
-            RuptureCoeff(1) = 1.0           ! K                                            !
-            RuptureCoeff(2) = 1.8e22        ! Y0                                           !
-            RuptureCoeff(3) = 0.01e22        ! Y1                                           !
-            RuptureCoeff(4) = 32.5          ! aexp                                         !
-            ! -------------------------------------                                        !
-            RuptureCoeff(5) = 36.25         ! alpha1                                       !
-            RuptureCoeff(6) = 0.0           ! beta1                                        !
-            RuptureCoeff(7) = 0.35*36.25         ! alpha2                                       !
-            RuptureCoeff(8) = 0.35*5e-7         ! beta2                                        !
-            ! -----------------------------------------------------------------------------!
-            ! Set the equivalent stress coefficients --------------------------------------!
-            ! Shear based criteria                                                         !
-            StressCoeff(1)  = 1.0           ! Yeq_A                                        !
-            StressCoeff(2)  = 0.0           ! Yeq_B                                        !
-            StressCoeff(3)  = 0.0           ! Yeq_C                                        !
-            StressCoeff(4)  = 0.0           ! s0                                           !
-            ! -----------------------------------------------------------------------------!
         CASE('ROCK1')
             ! -----------------------------------------------------------------------------!
             ! Set Lame parameters and characteristic wave speed ---------------------------!
-            LamCoeff(1) = 2670.0                                              ! RHO        !
-            ChWSpeed    = (/ 3463.999983, 6000.000000 /)                      ! CS, CL     !
+            LamCoeff(1) = 2500 !2670.0                                              ! RHO        !
+            ChWSpeed    = (/2309.4, 4000.0/)!(/ 3463.999983, 6000.000000 /)                      ! CS, CL     !
             LamCoeff(2) = LamCoeff(1)*ChWSpeed(1)**2                          ! MU         !
             LamCoeff(3) = LamCoeff(1)*(ChWSpeed(2)**2 - 2.0d0*ChWSpeed(1)**2) ! LAM        !
             ! -----------------------------------------------------------------------------!
@@ -347,9 +317,9 @@ CONTAINS
             RuptureCoeff(5) = 36.250         ! alpha1                                       !
             RuptureCoeff(6) = 0.0           ! beta1                                        !
             RuptureCoeff(7) = 36.250        ! alpha2 
-            RuptureCoeff(8) = 1.0e-6       ! beta2                                        !
-	       RuptureCoeff(7) = 0.9*RuptureCoeff(7)
-	       RuptureCoeff(8) = 0.9*RuptureCoeff(8)
+            RuptureCoeff(8) = 1e-6       ! beta2                                        !
+	    RuptureCoeff(7) = 2*RuptureCoeff(7)
+	    RuptureCoeff(8) = 2*RuptureCoeff(8)
             ! -----------------------------------------------------------------------------!
             ! Set the equivalent stress coefficients --------------------------------------!
             ! Shear based criteria                                                         !

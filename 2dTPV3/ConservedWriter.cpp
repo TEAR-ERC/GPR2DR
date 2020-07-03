@@ -50,28 +50,19 @@ void GPRDR::ConservedWriter::mapQuantities(
     }
   }
 
-//  outputQuantities[0]=V[1]; // u
-//  outputQuantities[1]=V[24]; // U
-
   double aux[16];
   double x_3[3];
   x_3[2]=0;
   std::copy_n(&x[0],DIMENSIONS,&x_3[0]);
 
-  pdeauxvar_(aux,Q,x_3,&timeStamp);
-//  outputQuantities[2]=aux[22]; // Q23
-//   outputQuantities[3]=V[20]; //xi1
-//   outputQuantities[4]=V[21]; //xi2
-//   outputQuantities[5]=aux[11]; //lambda
-//   outputQuantities[6]=aux[12]; //mu
-//   outputQuantities[7]=aux[3]; //sxy
 
-  for (int i=writtenUnknowns; i<writtenUnknowns+16; i++){ 
+  pdeauxvar_(aux,Q,x_3,&timeStamp);
+
+  for (int i=writtenUnknowns; i<writtenUnknowns+4; i++){ 
     if(std::abs(aux[i-writtenUnknowns])<epsi){
        outputQuantities[i]=0.0;
     }else {
     outputQuantities[i] = std::max(-1e36,std::min(1e36,aux[i-writtenUnknowns]));
     }
 }
-
 }

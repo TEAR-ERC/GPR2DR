@@ -1,0 +1,36 @@
+# MPI Logfilter.
+# black or white list entry
+# -1 means all ranks
+
+# default entries
+
+debug tarch -1 black
+debug peano -1 black
+info tarch -1 black
+info tarch::logging::CommandLineLogger -1 white
+info peano -1 black
+info peano::utils::UserInterface -1 white
+info peano::performanceanalysis -1 white
+info exahype -1 white
+
+# on first node
+info mpibalancing 0 black
+
+# too many messages
+info  peano::parallel::SendReceiveBufferAbstractImplementation::releaseSentMessages -1 black
+
+info  sharedmemoryoracles        -1  black
+
+info  Z4Solver                                -1  black
+info  exahype::solvers::Plotter               -1  black
+info  exahype::runner::Runner::runAsWorker    -1  black
+info  exahype::mappings::LoadBalancing        -1  white
+info  exahype::runners::Runner::runAsWorker   -1  black
+info  exahype::runners::Runner::init          -1  black
+info  exahype::runners::Runner::createRepository -1  white
+info  exahype::runners::Runner::createGrid       -1  white
+info  exahype::runners::Runner::startNewTimeStep -1  white
+info  Elastic::SlipWeakeningSolver               -1  white
+
+info  exahype::mappings::LoadBalancing::endIteration -1 black
+

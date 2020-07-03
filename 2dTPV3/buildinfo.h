@@ -4,8 +4,8 @@
 #define _EXAHYPE_BUILD_INFO_H_
 
 #define EXAHYPE_BUILDINFO_AVAILABLE
-#define EXAHYPE_BUILD_DATE          "Wed Jun 3 15:06:03 CEST 2020"
-#define EXAHYPE_BUILD_HOST          "tethys-2g"
+#define EXAHYPE_BUILD_DATE          "Fri Jul 3 17:20:19 CEST 2020"
+#define EXAHYPE_BUILD_HOST          "deadlock"
 
 /* Strings passed by the Makefile */
 #define EXAHYPE_BUILD_INFO \
@@ -14,40 +14,40 @@
     "SHAREDMEM = TBB\n" \
     "DISTRIBUTEDMEM = MPI\n" \
     "------\n" \
-    "ARCHITECTURE = wsm\n" \
+    "ARCHITECTURE = hsw\n" \
     "CC = mpiicpc\n" \
     "BOUNDARYCONDITIONS = None\n" \
     "------\n" \
-    "COMPILER_CFLAGS = -DTrackGridStatistics -restrict -std=c++11 -pedantic -Wall -qopenmp-simd -O3 -ip -xSSE4.2 -DSharedTBB -DParallel -DnoPackedRecords -DnoPersistentRegularSubtrees  -DIprobeEveryKIterations=0 -DUsePeanosRLEBoundaryExchanger -DUsePeanosRLEBoundaryExchangerForMetaData\n" \
-    "COMPILER_LFLAGS = -xSSE4.2\n" \
-    "FCOMPILER_CFLAGS = -r8 -cpp -auto -qopenmp-simd -O2 -xSSE4.2\n" \
+    "COMPILER_CFLAGS = -DTrackGridStatistics -restrict -std=c++11 -pedantic -Wall -qopenmp-simd -O3 -ip -xCORE-AVX2 -fma -DSharedTBB -DParallel -DnoPackedRecords -DnoPersistentRegularSubtrees  -DIprobeEveryKIterations=0 -DUsePeanosRLEBoundaryExchanger -DUsePeanosRLEBoundaryExchangerForMetaData\n" \
+    "COMPILER_LFLAGS = -xCORE-AVX2 -fma\n" \
+    "FCOMPILER_CFLAGS = -r8 -cpp -auto -qopenmp-simd -O2 -xCORE-AVX2 -fma\n" \
     "FCOMPILER_LFLAGS = \n" \
     "------\n" \
-    "EXAHYPE_PATH = /SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE\n" \
-    "PROJECT_PATH = /SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./ApplicationExamples/GPRDR/GPRDR_slip2\n" \
-    "PEANO_KERNEL_PEANO_PATH = /SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/peano\n" \
-    "PEANO_KERNEL_TARCH_PATH = /SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/tarch\n" \
+    "EXAHYPE_PATH = /import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE\n" \
+    "PROJECT_PATH = /import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./ApplicationExamples/GPRDR/GPRDR_slip4\n" \
+    "PEANO_KERNEL_PEANO_PATH = /import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/peano\n" \
+    "PEANO_KERNEL_TARCH_PATH = /import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/tarch\n" \
     "------\n" \
-    "PROJECT_CFLAGS = -DDim2 -DALIGNMENT=16 -DEQNTYPED99 -DODESOLVER -DOPT_KERNELS\n" \
+    "PROJECT_CFLAGS = -DDim2 -DALIGNMENT=32 -DEQNTYPED99 -DODESOLVER -DOPT_KERNELS\n" \
     "PROJECT_LFLAGS = -ltecio\n" \
     ""
 
 
 /*
  * ExaHyPE Git Repository information extraction
- * Extracted from git repository in /SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE
+ * Extracted from git repository in /import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./ExaHyPE
  */
 
-/* Information collected with git version 2.1.4 */
-#define EXAHYPE_GIT_INFO "duo/GPRdim  d069e90 Wed Apr 29 15:23:40 2020"
+/* Information collected with git version 2.11.0 */
+#define EXAHYPE_GIT_INFO "TEAR-ERC  e52019634 Fri Jul 3 17:04:39 2020"
 
 /*
  * Peano Git Repository information extraction
- * Extracted from git repository in /SCRATCH/dli/ExaHyPE/ExaHyPE-Engine/./Peano/peano
+ * Extracted from git repository in /import/deadlock-data/dli/ExaHyPE/ExaHyPE-Engine/./Peano/peano
  */
 
-/* Information collected with git version 2.1.4 */
-#define PEANO_GIT_INFO "master  46a1717 Wed Sep 11 20:54:57 2019"
+/* Information collected with git version 2.11.0 */
+#define PEANO_GIT_INFO "master  46a17171 Wed Sep 11 20:54:57 2019"
 #define PEANO_SVN_INFO  PEANO_GIT_INFO /* transition time */
 
 /*

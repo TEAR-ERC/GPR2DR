@@ -12,14 +12,11 @@ void GPRDR::GPRDRSolver_FV::init(const std::vector<std::string>& cmdlineargs,con
 }
 
 void GPRDR::GPRDRSolver_FV::adjustSolution(const double* const x,const double t,const double dt, double* const Q) {
-   const int nVar = GPRDR::GPRDRSolver_FV::NumberOfVariables;
-
     if (tarch::la::equals(t,0.0)) {
     int md = exahype::solvers::Solver::getMaximumAdaptiveMeshDepth();
     double cms = exahype::solvers::Solver::getCoarsestMeshSize();
     const int order = GPRDR::GPRDRSolver_FV::PatchSize;
-
-    std::fill_n(Q,nVar,0.0);
+    std::fill_n(Q,27,0.0);
     
     //    initialdata_(x, &ti, Qgp,&md,&cms,&order);
     double x_3[3];
@@ -31,7 +28,7 @@ void GPRDR::GPRDRSolver_FV::adjustSolution(const double* const x,const double t,
 
 //    dynamicrupture_(x,&t,Q);//Duo April 10
 
-    for(int i = 0; i< nVar; i++){
+    for(int i = 0; i< 27 ; i++){
       assert(std::isfinite(Q[i]));
     }
 }
@@ -111,12 +108,9 @@ void GPRDR::GPRDRSolver_FV::solutionUpdate(double* luh,const tarch::la::Vector<D
   constexpr int patchEnd           = patchBegin+patchSize; // patchEnd cell is outside domain
   constexpr int wholePatchSize      = patchSize+2*ghostLayerWidth;
   double x[3];
-  double slp_p[3],slp_m[3];
+  x[2] =0.0;
   double slp;
-  slp = 0.0;
-  slp_p[2] = 0.0;
-  slp_m[2] = 0.0;
-  x[2] = 0.0;
+  slp=0.0;
 
 #if DIMENSIONS==3
   kernels::idx4 idx(wholePatchSize,wholePatchSize,wholePatchSize,NumberOfVariables);
@@ -130,23 +124,17 @@ void GPRDR::GPRDRSolver_FV::solutionUpdate(double* luh,const tarch::la::Vector<D
 	double* luh_cell = luh + idx(k,j,i,0);
 #else
 	double* luh_cell = luh + idx(j,i,0);
-    double* luh_m = luh+idx(patchEnd-j,i,0);
-
-    slp = std::abs( (luh_cell[24]-luh_m[24]) );
-    slp = std::abs(2*luh_cell[24]) ;
-//    std::cout<<"slip="<<slp<<"\n";
+	double* luh_m   = luh + idx(patchEnd-j,i,0);
+     slp = std::abs(luh_cell[24]-luh_m[24]);
 #endif
 	double luh_cell_new[NumberOfVariables];
-    //std::cout<<"patchSize"<<patchSize<<"\n";
 
       x[0] = cellSize[0]/patchSize*(0.5+i-patchBegin)+cellCenter[0]-0.5*cellSize[0];
       x[1] = cellSize[1]/patchSize*(0.5+j-patchBegin)+cellCenter[1]-0.5*cellSize[1];
-      dynamicrupture_(x,&t,&luh_cell[0],&slp);   //Duo April 28
-
+        dynamicrupture_(&x[0],&t,&luh_cell[0],&slp);
 
 	updatesolutionode_(&luh_cell_new[0],luh_cell,&dt);
 	std::copy_n(luh_cell_new,NumberOfVariables,luh_cell);
-
       }
     }
 #if DIMENSIONS==3

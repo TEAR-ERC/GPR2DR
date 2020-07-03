@@ -7,8 +7,8 @@
 // ========================
 #include "ProbeWriter1.h"
 #include "PDE.h"
-#include "C2P-GPRDR.h"
 #include <algorithm>
+#include <stdlib.h>
 
 GPRDR::ProbeWriter1::ProbeWriter1(GPRDR::GPRDRSolver& solver) {
   // @TODO Please insert your code here.
@@ -35,17 +35,12 @@ void GPRDR::ProbeWriter1::mapQuantities(
     double* const outputQuantities,
     double timeStamp
 ) {
-  const int writtenUnknowns = 27;
-  double V[27];
-
-  pdecons2prim_(V,Q);
-
-  for (int i=0; i<writtenUnknowns; i++){
-    //outputQuantities[i] = std::max(-1e36,std::min(1e36,V[i]));
-     outputQuantities[i] = V[i];
+  const int writtenUnknowns = 24;
+  for (int i=0; i<writtenUnknowns; i++){ 
+    outputQuantities[i] = Q[i];
   }
 
-
+  
   double aux[16];
   double x_3[3];
   x_3[2]=0;
@@ -54,7 +49,7 @@ void GPRDR::ProbeWriter1::mapQuantities(
   pdeauxvar_(aux,Q,x_3,&timeStamp);
 
   for (int i=writtenUnknowns; i<writtenUnknowns+16; i++){
-    outputQuantities[i] = std::max(-1e36,std::min(1e36,aux[i-writtenUnknowns]));
+    outputQuantities[i] = aux[i-writtenUnknowns];
 
 }
 

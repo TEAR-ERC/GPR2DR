@@ -17,7 +17,7 @@
 #include "PDE.h"
 #include "InitialData.h"
 #include "Tools.h"
-#include "C2P-GPRDR.h"
+#include "Tools.h"
 #include "CGinterface.h"
 
 #include "kernels/KernelUtils.h"
@@ -91,13 +91,11 @@ void GPRDR::GPRDRSolver_ADERDG::init(const std::vector<std::string>& cmdlineargs
 }
 
 void GPRDR::GPRDRSolver_ADERDG::adjustPointSolution(const double* const x,const double t,const double dt,double* const Q) {
-  const int nVar = GPRDR::GPRDRSolver_ADERDG::NumberOfVariables;
-
   if (tarch::la::equals(t,0.0)) {
     int md = exahype::solvers::Solver::getMaximumAdaptiveMeshDepth();
     double cms = exahype::solvers::Solver::getCoarsestMeshSize();
     const int order = GPRDR::GPRDRSolver_ADERDG::Order;
-    std::fill_n(Q,nVar,0.0);
+    std::fill_n(Q,27,0.0);
     
     //    initialdata_(x, &ti, Qgp,&md,&cms,&order);
     double x_3[3];
@@ -106,8 +104,8 @@ void GPRDR::GPRDRSolver_ADERDG::adjustPointSolution(const double* const x,const 
     
     initialdata_(x_3, &t, Q);
   }
-  for(int i = 0; i< nVar ; i++){
-    //assert(std::isfinite(Q[i]));
+  for(int i = 0; i< 27 ; i++){
+    assert(std::isfinite(Q[i]));
   }
 }
 
@@ -148,24 +146,24 @@ void GPRDR::GPRDRSolver_ADERDG::boundaryValues(const double* const x,const doubl
 }
 
 exahype::solvers::Solver::RefinementControl GPRDR::GPRDRSolver_ADERDG::refinementCriterion(const double* const luh,const tarch::la::Vector<DIMENSIONS,double>& cellCentre,const tarch::la::Vector<DIMENSIONS,double>& cellSize,double t,const int level) {
-//  if (tarch::la::equals(t,0.0)) {
-//  if(DIMENSIONS == 2){
-//    if(std::abs(cellCentre[0]) < 15.0e3){
-//      if(std::abs(cellCentre[1]) < 0.5*cellSize[1]){
-//	   return exahype::solvers::Solver::RefinementControl::Refine;
-//      }
-//    }
-//  }else{
-//    if(std::abs(cellCentre[0]) < 50.0){
-//      if(std::abs(cellCentre[1]) < 50.0){
-//		  if(std::abs(cellCentre[2]) < 50.0){
-//			return exahype::solvers::Solver::RefinementControl::Refine;
-//		  }
-//      }
-//    }	  
-//	  
-//  };
-//  }	 
+  if (tarch::la::equals(t,0.0)) {
+  if(DIMENSIONS == 2){
+    if(std::abs(cellCentre[0]) < 15000.0){
+      if(std::abs(cellCentre[1]) < 1500.0){
+	return exahype::solvers::Solver::RefinementControl::Refine;
+      }
+    }
+  }else{
+    if(std::abs(cellCentre[0]) < 50){
+      if(std::abs(cellCentre[1]) < 50){
+		  if(std::abs(cellCentre[2]) < 50){
+			return exahype::solvers::Solver::RefinementControl::Refine;
+		  }
+      }
+    }	  
+	  
+  };
+  }	 
 
   //return exahype::solvers::Solver::RefinementControl::Keep;
  // if ( level > getCoarsestMeshLevel() ) {
@@ -183,12 +181,11 @@ return exahype::solvers::Solver::RefinementControl::Keep;
 
 void GPRDR::GPRDRSolver_ADERDG::eigenvalues(const double* const Q,const int direction,double* const lambda) {
   double nv[3] = {0.};
-  const int nVar = GPRDR::GPRDRSolver_ADERDG::NumberOfVariables;
   nv[direction] = 1;
   pdeeigenvalues_(lambda, Q, nv);
 
-  for(int i = 0; i< nVar ; i++){
-    //assert(std::isfinite(lambda[i]));
+  for(int i = 0; i< 27 ; i++){
+    assert(std::isfinite(lambda[i]));
   }
 }
 
@@ -197,7 +194,7 @@ void GPRDR::GPRDRSolver_ADERDG::eigenvalues(const double* const Q,const int dire
 
 
 void GPRDR::GPRDRSolver_ADERDG::flux(const double* const Q,double** const F) {
-  const int nVar = GPRDR::GPRDRSolver_ADERDG::NumberOfVariables;
+  constexpr int nVar = GPRDR::GPRDRSolver_ADERDG::NumberOfVariables;
   if(DIMENSIONS == 2){
     double F_3[nVar];
     pdeflux_(F[0], F[1],F_3, Q);
@@ -206,8 +203,8 @@ void GPRDR::GPRDRSolver_ADERDG::flux(const double* const Q,double** const F) {
   }
 
   for(int d = 0; d< DIMENSIONS ; d++){
-    for(int i = 0; i< nVar ; i++){
-      //assert(std::isfinite(F[d][i]));
+    for(int i = 0; i< 27 ; i++){
+      assert(std::isfinite(F[d][i]));
     }
   }
 }
@@ -215,20 +212,18 @@ void GPRDR::GPRDRSolver_ADERDG::flux(const double* const Q,double** const F) {
 
 //You can either implement this method or modify fusedSource
 void GPRDR::GPRDRSolver_ADERDG::algebraicSource(const tarch::la::Vector<DIMENSIONS, double>& x, double t, const double *const Q, double *S) {
-  const int nVar = GPRDR::GPRDRSolver_ADERDG::NumberOfVariables;
   pdesource_(S, Q);
 
-  for(int i = 0; i< nVar ; i++){
-    //assert(std::isfinite(S[i]));
+  for(int i = 0; i< 27 ; i++){
+    assert(std::isfinite(S[i]));
   }
 }
 
 void GPRDR::GPRDRSolver_ADERDG::nonConservativeProduct(const double* const Q,const double* const gradQ,double* const BgradQ) {
   //std::fill_n(BgradQ,24,0.0);
-  const int nVar = GPRDR::GPRDRSolver_ADERDG::NumberOfVariables;
   pdencp_(BgradQ, Q, gradQ);
-  for(int i = 0; i< nVar ; i++){
-    //assert(std::isfinite(BgradQ[i]));
+  for(int i = 0; i< 27 ; i++){
+    assert(std::isfinite(BgradQ[i]));
   }
 }
 
@@ -242,50 +237,48 @@ bool GPRDR::GPRDRSolver_ADERDG::isPhysicallyAdmissible(
       const double                                timeStamp) const
 {
   		  
-  int limvalue;
-  
-//   return false;
-  
    if((localDMPObservablesMax[0]<0.999 && localDMPObservablesMin[0]>0.001) || localDMPObservablesMax[0]>1.0001 ){
     //   std::cout<<localDMPObservablesMax[0]<<localDMPObservablesMin[0]<<"alpha\n";
        return false;
     }
-
-   if (std::abs(cellCentre[1])<5.0*cellSize[1]){
+   
+   if (std::abs(cellCentre[1])<0.50*cellSize[1]){
      return false;
-   } 
+   }
    
    if(localDMPObservablesMax[1]>1e-5 && localDMPObservablesMin[0]>1e-4){
+      logInfo("isPA","xi");
       return false;
    }
-
+  
   if(localDMPObservablesMax[2]>0.5){
-      return false;
+      logInfo("isPA","critical stress");
+     // return false;
    }
    
   return true;
-  //pdelimitervalue_(&limvalue,&cellCentre[0],&NumberOfDMPObservables, localDMPObservablesMin, localDMPObservablesMax);
-  //bool ret_value;
-  // limvalue > 0 ? ret_value=false : ret_value=true;
-  // return ret_value;
 
+
+ // int limvalue;
+ // return false;
+   
+//  pdelimitervalue_(&limvalue,&cellCentre[0],&NumberOfDMPObservables, localDMPObservablesMin, localDMPObservablesMax);
+//  bool ret_value;
+ // limvalue > 0 ? ret_value=false : ret_value=true;
+//  return ret_value;
 }
 
 
 void GPRDR::GPRDRSolver_ADERDG::mapDiscreteMaximumPrincipleObservables(double* const observables,
 								       const double* const Q) const {
   VariableShortcuts s;
-  double V[27];
-  pdecons2prim_(V,Q);
-
-  observables[0] = Q[17]; //vel
+  observables[0] = Q[1]/Q[0]; //alpha
   observables[1] = Q[20]; //xi
   
   double criticalStress;
 
   pdecritialstress_(&criticalStress,Q);
   observables[2] = criticalStress; //criticalStress
-  //observables[2] = Q[24];// slip U
 }
 
 

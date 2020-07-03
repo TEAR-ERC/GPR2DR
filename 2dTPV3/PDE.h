@@ -18,7 +18,7 @@ void registerinitialdata_(const char* const id_name, int* id_name_len);
 //void inittecplot_(const int* N_in,const int* M_in);
 void pdeauxvar_(double* aux, const double* const Q,double* x, const double* const time);
 void pdecritialstress_(double* CS, const double* const Q);
-void dynamicrupture_(const double* x, const double* const t, double* Q,const double*  slp);
+void dynamicrupture_(const double* x, const double* const t, double* Q,const double* slp);
 
 
 //void hllemfluxfv_(double* FL, double* FR, const double* const  QL, const double* const  QR, const double* const  QavL, const double* const  QavR, const int* normalNonZeroIndex);

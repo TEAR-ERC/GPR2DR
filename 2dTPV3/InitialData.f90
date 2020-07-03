@@ -50,7 +50,7 @@ RECURSIVE SUBROUTINE InitParameters(STRLEN,PARSETUP)
 		case('TPV3')
 		    EQN%nMATs=2
 		    ALLOCATE(EQN%MATERIALS(EQN%nMATs))
-		    EQN%MATERIALS(1)='ROCKWEAK'
+		    EQN%MATERIALS(1)='ROCK1'
 		    EQN%MATERIALS(2)='ROCK1'
 		case('NLOPRUPTURE')
 		    EQN%nMATs=2
@@ -313,36 +313,19 @@ RECURSIVE SUBROUTINE InitialData(xGP, tGp, Q)
         !xi = 0.5-0.5*abs(ERF(rr/300.0))
         xi = 1.0
         if(abs(xGP(1)).le.15000.0)then
-	      xi = 1 - exp(-0.5*abs(xGP(2))**2/200.0**2)	! xi=0: rock1; xi=1: unbreakable rock
-	    end if
-	    up(22)=1.0  ! xi1 Q(21)
+	 xi = 1 - exp(-0.5*abs(xGP(2))**2/200.0**2)	! xi=0: rock1; xi=1: unbreakable rock
+	end if
+	up(22)=1.0  ! xi1 Q(21)
         !up(22)=1
-       x1 = xGP(1)
-       y1 = xGP(2)
-       if(abs(x1)<15000.0 .and. abs(y1)<50.0) then
         LamCoeff=getLameCoefficients(EQN%MATERIALS(1)) !
         up(1)     = LamCoeff(1)
         up(20)    = LamCoeff(2)
-        up(19)    = LamCoeff(3)  
-        up(22) = 1.0
-       else
-        LamCoeff=getLameCoefficients(EQN%MATERIALS(1)) !
-        up(1)     = LamCoeff(1)
-        up(20)    = LamCoeff(2)
-        up(19)    = LamCoeff(3)
-        up(22)=0.0
-       end if 
-#else        
-        call AssignMaterialProperties(up,ICtype)  ! Assign the material properties as from the parfile
-        !rr=xGP(2)-2.0*xGP(1)-4000.0
-        !xi = 0.5+0.5*ERF(rr/300.0)
-        x1 = xGP(1)
-        y1 = xGP(2)
-               if(abs(x1)<15000.0 .and. abs(y1)<100.0) then
-                  xi = 1.0
-               end if
-        call AssignMaterialPropertiesMix(up,(/'ROCKWEAK' ,  'ROCK1'  /),(/xi, 1-xi/),2,.TRUE.)
-
+        up(19)    = LamCoeff(3)   
+#else
+        call AssignMaterialProperties(up,ICtype2)  ! Assign the material properties as from the parfile
+        rr=xGP(2)-2.0*xGP(1)-4000.0
+        xi = 0.5+0.5*ERF(rr/300.0)
+        call AssignMaterialPropertiesMix(up,(/'ROCK1' ,  'ROCK3'  /),(/1-xi, xi/),2,.TRUE.)
 #endif
         ! Initial velocity vector ----- !
         up(2) = 0.0                     !
@@ -359,7 +342,7 @@ RECURSIVE SUBROUTINE InitialData(xGP, tGp, Q)
         EQN%cv    = 1.0
         EQN%gamma = 2.0
         EQN%p0    = 0.0
-        EQN%tau0  = 1.e-6 ! 1e-6
+        EQN%tau0  = 1.e-23 ! 1e-6
         EQN%Yeq_mode =1
         ! -----------------------------------------------------------------------------------------------
         ! Compute the initial stress --------------------------------------------------------------------------------
@@ -370,8 +353,8 @@ RECURSIVE SUBROUTINE InitialData(xGP, tGp, Q)
         LEsigma(2)=-120.0*1.e+6
 	!LEsigma(3)=-120.0*1.e+6
 
-        if(abs(xGP(1)) .le. 1500.0 .and. abs(xGP(2)) .le.50.0 ) then
-            LEsigma(4)=81.60*1e6
+        if(abs(xGP(1)) .le. 1500.0 .and. abs(xGP(2)) .le. 100.0 ) then
+            LEsigma(4)=95.0*1e6
         else
             LEsigma(4)=70.0*1e6
         end if
@@ -398,7 +381,7 @@ RECURSIVE SUBROUTINE InitialData(xGP, tGp, Q)
             !y1=0.5*sqrt(2.0)*(-xGP(1)+xGP(2))
             x1 = xGP(1)
             y1 = xGP(2)
-               if(abs(x1)<15000.0 .and. abs(y1)<50.0) then
+               if(abs(x1)<10000.0 .and. abs(y1)<100.00) then
                    up(21)= 1.0
                end if
 !            if(abs(xGP(1)-3000.0) .le. 100.0 .and. abs(xGP(2)+2000.0) .le. 100.0/3.0 .and. abs(xGP(3)) .le. 100.0/3.0) then
@@ -462,7 +445,6 @@ RECURSIVE SUBROUTINE InitialData(xGP, tGp, Q)
         up(18)=1     ! alpha
 
         up(5)=0     ! alpha
-        up(25:27)=0.0
         ! -----------------------------------------------------------------------------------------------------------
        if(nDim .eq. 3) then
         if(USECG) then
@@ -474,7 +456,7 @@ RECURSIVE SUBROUTINE InitialData(xGP, tGp, Q)
                 end if
         else
         !up(18)=SmoothInterface(-7500.0+xGP(2)+500*sin(1.e-3*xGP(1)),300.0,0.0,1.0)              
-        !up(18)=SmoothInterface(-3000000.0+xGP(2),300.0,0.0,1.0)
+        !up(18)=SmoothInterface(-12000.0+xGP(2),300.0,0.0,1.0)
         end if
       up(3)=up(3)*up(18)
       up(9:17)= GPRsigma2ASGEOS(LEsigma*up(18),0.0,LL_GPR,MM_GPR,up(1),EQN%gamma,up(5),EQN%cv,EQN%p0,1.e-3,EQN%EOS,EQN%T0)
@@ -619,24 +601,25 @@ RECURSIVE SUBROUTINE PDElimitervalue(limiter_value,xx,numberOfObservables, obser
 
 	limiter_value=0
 
-   IF((observablesMax(1)>1e-21 .or. observablesMin(1)<-1e-21) .or. observablesMax(1)>1.001) THEN  ! was -0.001   .or. levelmin<0.001
+   If(observablesMax(1)>1e-3.or.observablesMin(1)<-1e-3)then
+  ! IF((observablesMax(1)<0.999 .and. observablesMin(1)>0.001) .or. observablesMax(1)>1.001) THEN  ! was -0.001   .or. levelmin<0.001
 		limiter_value = 1 
    ENDIF 
    
-   IF(observablesMax(2)>1.e-3 ) THEN 
+   IF(observablesMax(2)>1.e-5  .and. observablesMax(1)>1.e-4) THEN 
        limiter_value = 1
    ENDIF 
    
-   IF(observablesMax(3)>1e-21.or.observablesMin(3)<-1e-21) THEN 
+   IF(observablesMax(3)>0.5 ) THEN 
        limiter_value = 1
    ENDIF
 
-
 ! add limiter for fault interface
-  ! if(abs(xx(2))<33.0e3)then
-  !    limiter_value = 1
-  ! endif 
+   if(abs(xx(2))<1.0e3)then
+      limiter_value = 1
+   endif 
    
+   !limiter_value = 1
 END SUBROUTINE PDElimitervalue
 
 RECURSIVE SUBROUTINE ShuVortex2D(x, t, Q)
